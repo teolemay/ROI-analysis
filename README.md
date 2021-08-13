@@ -14,6 +14,7 @@ Requirements:
 - numpy
 - qtrangeslider
 - tifffile
+- imagecodecs
 - scipy
 - scikit-image
 - opencv-python-headless
