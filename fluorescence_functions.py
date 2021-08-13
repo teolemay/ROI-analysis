@@ -488,7 +488,7 @@ def threshold_ROIs(segmented_img, intensity_img, mean_scalar=1):
                 segmented[row[j], col[j]] = 0
     return segmented
 
-def otsu_segment_image(image, kernel_size=50, sigma=0.25, small_roi_radius=4):
+def otsu_segment_image(image, kernel_size=50, sigma=0.25, small_roi_radius=4, log_binary=False):
     """
     this function quickly segments an image using otsu binarization and connected components
 
@@ -498,10 +498,16 @@ def otsu_segment_image(image, kernel_size=50, sigma=0.25, small_roi_radius=4):
     :return: segmented image, ROI labels
     """
     log = LoG_kernel(kernel_size=kernel_size, sigma=sigma) 
-    image= cv.filter2D(np.float32(image),cv.CV_32F,log,None)  #I added the LoG kernel here, maybe it will work nicely
-    maxi = np.max(image)
-    image = image / maxi * 255
-    rescaled = image.astype(np.uint8)
+    image = cv.filter2D(np.float32(image),cv.CV_32F,log,None)  #I added the LoG kernel here, maybe it will work nicely
+    if log_binary:
+        image = np.log(image, where=(image!=0))
+        maxi = np.max(image)
+        image = image / maxi * 255
+        rescaled = image.astype(np.uint8)
+    else:
+        maxi = np.max(image)
+        image = image / maxi * 255
+        rescaled = image.astype(np.uint8)
     ret, binary = cv.threshold(rescaled, 0, 255, cv.THRESH_BINARY+cv.THRESH_OTSU)
     disk = cv.getStructuringElement(cv.MORPH_ELLIPSE,(small_roi_radius, small_roi_radius))
     opened_binary =  cv.morphologyEx(binary, cv.MORPH_OPEN, disk)
@@ -526,7 +532,7 @@ def segmentation_choice(image, method, kernel_size=50, sigma=0.25, small_roi_rad
     if method == 'watershed':
         segmented, labels = watershed_segment_image(image, kernel_size=kernel_size, sigma=sigma, noise_level=noise_level, small_roi_radius=small_roi_radius, roi_size=roi_size, log_binary=log_binary)
     elif method == 'otsu':
-        segmented, labels = otsu_segment_image(image, small_roi_radius=small_roi_radius)
+        segmented, labels = otsu_segment_image(image, small_roi_radius=small_roi_radius, log_binary=log_binary)
     else:
         raise ValueError('Unknown segmentation "method" selected. options are "watershed" OR "otsu"')
     if threshold:
@@ -827,6 +833,7 @@ def ISS_stack_nonstructured_data_withFRET(stack_path, image_stack, csv_name, alg
     """ #dont forget to update function description
     metadata = get_ISS_metadata(stack_path)
     laser_freq, FLIM_time_res, pixel_dwell_time, pixel_len = parse_ISS_metadata(metadata)
+    #image is directly passed to function in an effort to conserve memory
 
     slice_ID = np.array([])
     ROI_labels = np.array([])
