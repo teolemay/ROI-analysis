@@ -761,14 +761,12 @@ class Segmentation_Dialog(QtWidgets.QDialog):
             self.otsuBox.setChecked(False)
             self.ROIsizeLabel.setEnabled(True)
             self.ROIsizeSpinBox.setEnabled(True)
-            self.logBinaryBox.setEnabled(True)
             self.noiseSpinBox.setEnabled(True)
             self.noiseLabel.setEnabled(True)
         else:
             self.otsuBox.setChecked(True)
             self.ROIsizeLabel.setEnabled(False)
             self.ROIsizeSpinBox.setEnabled(False)
-            self.logBinaryBox.setEnabled(False)
             self.noiseSpinBox.setEnabled(False)
             self.noiseLabel.setEnabled(False)
 
@@ -778,14 +776,12 @@ class Segmentation_Dialog(QtWidgets.QDialog):
             self.watershedBox.setChecked(False)
             self.ROIsizeLabel.setEnabled(False)
             self.ROIsizeSpinBox.setEnabled(False)
-            self.logBinaryBox.setEnabled(False)
             self.noiseSpinBox.setEnabled(False)
             self.noiseLabel.setEnabled(False)
         else:
             self.watershedBox.setChecked(True)
             self.ROIsizeLabel.setEnabled(True)
             self.ROIsizeSpinBox.setEnabled(True)
-            self.logBinaryBox.setEnabled(True)
             self.noiseSpinBox.setEnabled(True)
             self.noiseLabel.setEnabled(True)
 
@@ -890,7 +886,6 @@ class Segmentation_Dialog(QtWidgets.QDialog):
             self.ROIsizeSpinBox.setEnabled(False)
             self.noiseLabel.setEnabled(False)
             self.noiseSpinBox.setEnabled(False)
-            self.logBinaryBox.setEnabled(False)
         if self.segParams['channel'] == 'donor':
             self.donorCheckBox.setChecked(True)
         elif self.segParams['channel'] == 'secondary':
