@@ -7,6 +7,10 @@ File descriptions:
   - run this file to use ROI analysis
 - fluorescence_functions.py
   - file management, data analysis functions
+- requirements.txt
+  - required packages
+- bad_path.png, none.png
+  - background images.
 
 Requirements:
 - python (>3.8)
