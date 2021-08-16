@@ -14,6 +14,7 @@ from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
 from qtrangeslider import QRangeSlider
 import json
+import cv2 as cv
 
 
 class Canvas(FigureCanvas):
@@ -217,7 +218,6 @@ class Display_Plots(QtWidgets.QDialog):
         self.secondaryPlot.ax.set_xticks(tick_positions)
         self.secondaryPlot.ax.set_xticklabels([f'{round(self.INO_spectral_array[i], 1)}' for i in label_ticks])
         self.secondaryPlot.ax.set(xlabel='Wavelength (nm)', ylabel='Photon Count')
-        self.secondaryPlot.ax.set_ylim(bottom=0, top=max(np.sum(np.sum(spectral, axis=0), axis=0))+10)
         self.secondaryPlot.fig.canvas.draw_idle()
         self.donortop = np.argmax(self.donorDecay) 
         #slider things
