@@ -1119,7 +1119,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.stackPath.setGeometry(10, 40, 220, 20)
         self.donorFLIMimage = Canvas(self.centralwidget)
         self.donorFLIMimage.setGeometry(250, 110, 650, 650)
-        self.donorFLIMimage.ax.imshow(plt.imread('none.png'))
+        self.donorFLIMimage.ax.imshow(plt.imread(dir_path + '\\' + 'none.png'))
         self.donorFLIMimage.no_ticks()
         self.donorFLIMimage.fig.canvas.draw_idle()
         self.donorFLIMToolbar = NavigationToolbar(self.donorFLIMimage, self.centralwidget)
@@ -1130,7 +1130,7 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.donorFLIM_name.setGeometry(250, 88, 600, 21)
         self.secondaryImage = Canvas(self.centralwidget)
         self.secondaryImage.setGeometry(920, 110, 650, 650)
-        self.secondaryImage.ax.imshow(plt.imread('none.png'))
+        self.secondaryImage.ax.imshow(plt.imread(dir_path + '\\'+ 'none.png'))
         self.secondaryImage.no_ticks()
         self.secondaryImage.fig.canvas.draw_idle()
         self.secondaryImageToolbar = NavigationToolbar(self.secondaryImage, self.centralwidget)
@@ -1556,10 +1556,10 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
             self.new_file = False
             self.plotButton.setEnabled(False)
             self.donorFLIMimage.wipe()
-            self.donorFLIMimage.ax.imshow(plt.imread('bad_path.png'))
+            self.donorFLIMimage.ax.imshow(plt.imread(dir_path + '\\' + 'bad_path.png'))
             self.donorFLIMimage.fig.canvas.draw_idle()
             self.secondaryImage.wipe()
-            self.secondaryImage.ax.imshow(plt.imread('bad_path.png'))
+            self.secondaryImage.ax.imshow(plt.imread(dir_path + '\\' + 'bad_path.png'))
             self.secondaryImage.fig.canvas.draw_idle()
 
     def show_cubes(self):
@@ -1675,6 +1675,8 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
 
 if __name__ == "__main__":
     import sys
+    import os
+    dir_path = os.path.dirname(os.path.realpath(__file__))
     app = QtWidgets.QApplication(sys.argv)
     main_window = Ui_MainWindow()
     main_window.show()
