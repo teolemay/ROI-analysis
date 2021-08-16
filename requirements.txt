@@ -1,0 +1,10 @@
+pyqt5
+matplotlib
+numpy
+qtrangeslider
+tifffile
+imagecodecs
+scipy
+scikit-image
+opencv-python-headless
+pandas
