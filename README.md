@@ -22,7 +22,7 @@ Requirements:
 - imagecodecs
 - scipy
 - scikit-image
-- opencv-python-headless
+- opencv-python
 - pandas
 
 to install the requirements: ensure that you already have python and pip installed, then run
