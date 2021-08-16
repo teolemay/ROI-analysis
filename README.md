@@ -20,3 +20,9 @@ Requirements:
 - scikit-image
 - opencv-python-headless
 - pandas
+
+to install the requirements: ensure that you already have python and pip installed, then run
+
+    pip install -r requirements.txt
+
+
