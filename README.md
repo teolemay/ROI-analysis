@@ -1,5 +1,6 @@
 # ROI-analysis
 ROI analysis package for ISS and INO image cubes
+![image](https://user-images.githubusercontent.com/84033812/129761291-1495d211-a131-4b76-a09e-c19b167d8188.png)
 
 File descriptions:
 - working_image_viewer.py
