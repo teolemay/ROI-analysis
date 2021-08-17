@@ -5,7 +5,7 @@ ROI analysis package for ISS and INO image cubes
 File descriptions:
 - ROI_GUI.py
   - pyqt5 gui functions/classes
--ROI_functions_images
+- ROI_functions_images
   - fluorescence_functions.py
     - image file handling, data analysis functions
   - bad_path.png, none.png
