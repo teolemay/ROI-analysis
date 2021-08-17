@@ -31,5 +31,5 @@ To install the requirements: ensure that you already have python and pip install
 
     pip install -r requirements.txt
 
-Next, ensure that `ROI_GUI.py` and the `ROI_functions_images` folder are both in the same working directory. 
+Next, ensure that `ROI_GUI.py` and the `ROI_functions_images` folder are both downloaded in the same directory. 
 Running `ROI_GUI.py` will open the GUI and allow access to the ROI analysis functionalities.
