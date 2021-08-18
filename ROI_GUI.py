@@ -14,9 +14,6 @@ from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
 from qtrangeslider import QRangeSlider
 import json
-import cv2 as cv
-import imagecodecs
-from imagecodecs import lzw_decode
 
 
 class Canvas(FigureCanvas):
