@@ -376,7 +376,7 @@ def LoG_kernel(kernel_size=50, sigma=0.25):
     log_kernel = log_kernel / np.sum(log_kernel)
     return log_kernel
 
-def get_binary_map(flim_img, kernel_size=50, sigma=0.25, noise_level=20, small_roi_radius=5):
+def get_binary_map(flim_img, kernel_size=50, sigma=0.25, bin_map_factor=1, noise_level=20, small_roi_radius=5):
     """
     1- Using a LoG filter, identify signal regions
     2- Using  mean filter create a binary map from convolved image
@@ -395,7 +395,7 @@ def get_binary_map(flim_img, kernel_size=50, sigma=0.25, noise_level=20, small_r
     log = LoG_kernel(kernel_size=kernel_size, sigma=sigma) 
     conv_img = cv.filter2D(np.float32(flim_img),cv.CV_32F,log,None)
     conv_img = cv.normalize(conv_img,None,0,1,cv.NORM_MINMAX,cv.CV_32F)
-    conv_img_mean = np.mean(conv_img)
+    conv_img_mean = np.mean(conv_img) * bin_map_factor
     binary_mask = np.ones_like(flim_img)
     binary_mask[conv_img<conv_img_mean]=0
     binary_mask[flim_img < noise_level] = 0 
@@ -444,7 +444,7 @@ def multiseed_watershed_segmentation(binary_map, seed_map):
     segmap[binary_map==0]=0
     return segmap
 
-def watershed_segment_image(flim_img, kernel_size=50, sigma=0.25, noise_level=20, small_roi_radius=5, roi_size=10, log_binary=True):
+def watershed_segment_image(flim_img, kernel_size=50, sigma=0.25, bin_map_factor=1, noise_level=20, small_roi_radius=5, roi_size=10, log_binary=True):
     """
     this function groups the watershed segmentation functions together. The function also renames the segments from 1 to number of ROIs
     Parameters are mostly the same as for the individual functions other than log_binary
@@ -456,9 +456,9 @@ def watershed_segment_image(flim_img, kernel_size=50, sigma=0.25, noise_level=20
     if log_binary:
         noise_level=np.log(noise_level)
         log_img = np.log(flim_img, where=(flim_img != 0))
-        binary_map = get_binary_map(log_img, kernel_size=kernel_size, sigma=sigma, noise_level=noise_level, small_roi_radius=small_roi_radius)
+        binary_map = get_binary_map(log_img, kernel_size=kernel_size, sigma=sigma, bin_map_factor=bin_map_factor, noise_level=noise_level, small_roi_radius=small_roi_radius)
     else:
-        binary_map = get_binary_map(flim_img, kernel_size=kernel_size, sigma=sigma, noise_level=noise_level, small_roi_radius=small_roi_radius)
+        binary_map = get_binary_map(flim_img, kernel_size=kernel_size, sigma=sigma, bin_map_factor=bin_map_factor, noise_level=noise_level, small_roi_radius=small_roi_radius)
     local_maxima = get_local_maxima(flim_img, roi_size=roi_size)
     segmented = multiseed_watershed_segmentation(binary_map, local_maxima)
     labels = np.unique(segmented)
@@ -515,7 +515,7 @@ def otsu_segment_image(image, kernel_size=50, sigma=0.25, small_roi_radius=4, lo
     labels = np.unique(segmented_img)[1:]
     return segmented_img, labels
 
-def segmentation_choice(image, method, kernel_size=50, sigma=0.25, small_roi_radius=5, noise_level=20, roi_size=10, log_binary=False, threshold=False, mean_scalar=1):
+def segmentation_choice(image, method, kernel_size=50, sigma=0.25, bin_map_factor=1, small_roi_radius=5, noise_level=20, roi_size=10, log_binary=False, threshold=False, mean_scalar=1):
     """
     this function allows the user to choose whether they want to use watershed or otsu for binarization and segmentation.
     care must be taken to provide the proper keyword arguments for the desired segmentation method
@@ -530,7 +530,7 @@ def segmentation_choice(image, method, kernel_size=50, sigma=0.25, small_roi_rad
     :return: segmented image and ROI_labels
     """
     if method == 'watershed':
-        segmented, labels = watershed_segment_image(image, kernel_size=kernel_size, sigma=sigma, noise_level=noise_level, small_roi_radius=small_roi_radius, roi_size=roi_size, log_binary=log_binary)
+        segmented, labels = watershed_segment_image(image, kernel_size=kernel_size, sigma=sigma, bin_map_factor=bin_map_factor, noise_level=noise_level, small_roi_radius=small_roi_radius, roi_size=roi_size, log_binary=log_binary)
     elif method == 'otsu':
         segmented, labels = otsu_segment_image(image, small_roi_radius=small_roi_radius, log_binary=log_binary)
     else:
@@ -697,7 +697,7 @@ def ROI_phasor_data_maps(segmented_img, labels, truncated_img_cube, freq=20e6, d
 
 
 #NON STRUCTURED DATA
-def INO_stack_nonstructured_data_withFRET(INOfolder_path, csv_name, spectralRange0, spectralRange1, spectralRange2, spectralRange3, algorithm, kernel_size, sigma, noise_level, small_roi_radius, roi_size, log_binary, mean_scalar, donorT0Lims, autoT0=False, ROI_thresholding=True, no_acceptor_lifetime=3.8e-9):
+def INO_stack_nonstructured_data_withFRET(INOfolder_path, csv_name, spectralRange0, spectralRange1, spectralRange2, spectralRange3, algorithm, kernel_size, sigma, noise_level, small_roi_radius, roi_size, log_binary, mean_scalar, donorT0Lims, bin_map_factor=1, autoT0=False, ROI_thresholding=True, no_acceptor_lifetime=3.8e-9):
     """
     this function calculates non-structured for an INO image stack
 
@@ -744,7 +744,7 @@ def INO_stack_nonstructured_data_withFRET(INOfolder_path, csv_name, spectralRang
                 if i == 0:
                     laser_freq, FLIM_time_res, IRF, spectral_map, pixel_dwell_time, pixel_len = parse_INO_metadata(cubes_path)
                 #SEGMENTATION HERE (of donor image)
-                segmented_img, labels = segmentation_choice(donor_img, method=algorithm, kernel_size=kernel_size, sigma=sigma, noise_level=noise_level, small_roi_radius=small_roi_radius, roi_size=roi_size, log_binary=log_binary, threshold=ROI_thresholding, mean_scalar=mean_scalar)                                                                    
+                segmented_img, labels = segmentation_choice(donor_img, method=algorithm, kernel_size=kernel_size, sigma=sigma, bin_map_factor=bin_map_factor, noise_level=noise_level, small_roi_radius=small_roi_radius, roi_size=roi_size, log_binary=log_binary, threshold=ROI_thresholding, mean_scalar=mean_scalar)                                                                    
                 #well ID array
                 well_id = np.full(labels.shape, key)
                 #SLICE id ARRAY
@@ -820,7 +820,7 @@ def INO_stack_nonstructured_data_withFRET(INOfolder_path, csv_name, spectralRang
     print('Process Finished.')
     return df
 
-def ISS_stack_nonstructured_data_withFRET(stack_path, image_stack, csv_name, algorithm, kernel_size, sigma, noise_level, small_roi_radius, roi_size, log_binary, mean_scalar, donorT0Lims, acceptorT0Lims, autoT0=False, ROI_thresholding=False, no_acceptor_lifetime=3.8e-9):
+def ISS_stack_nonstructured_data_withFRET(stack_path, image_stack, csv_name, algorithm, kernel_size, sigma, noise_level, small_roi_radius, roi_size, log_binary, mean_scalar, donorT0Lims, acceptorT0Lims, bin_map_factor=1, autoT0=False, ROI_thresholding=False, no_acceptor_lifetime=3.8e-9):
     """
     this function calculates non-structured for an ISS image stack
 
@@ -856,7 +856,7 @@ def ISS_stack_nonstructured_data_withFRET(stack_path, image_stack, csv_name, alg
         acceptor_decay = np.sum(np.sum(acceptor_cube, axis=0), axis=0)
         donor_img = np.sum(donor_cube, axis=2)
         #SEGMENTATION HERE (of donor image)
-        segmented_img, labels = segmentation_choice(donor_img, method=algorithm, kernel_size=kernel_size, sigma=sigma, noise_level=noise_level, small_roi_radius=small_roi_radius, roi_size=roi_size, log_binary=log_binary, threshold=ROI_thresholding, mean_scalar=mean_scalar)
+        segmented_img, labels = segmentation_choice(donor_img, method=algorithm, kernel_size=kernel_size, sigma=sigma, bin_map_factor=bin_map_factor, noise_level=noise_level, small_roi_radius=small_roi_radius, roi_size=roi_size, log_binary=log_binary, threshold=ROI_thresholding, mean_scalar=mean_scalar)
         #SLICE id ARRAY
         ID = np.zeros(labels.shape) + i
         #ROI SIZE, donor/acceptor intensities
