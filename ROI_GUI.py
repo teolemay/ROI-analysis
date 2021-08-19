@@ -5,6 +5,7 @@ This file contains code for the roi-analysis/image viewer gui
 """
 
 
+from os import terminal_size
 from PyQt5 import QtCore, QtGui, QtWidgets
 from mpl_toolkits.axes_grid1.axes_divider import make_axes_locatable;
 import ROI_functions_images.fluorescence_functions as func
@@ -685,7 +686,7 @@ class Segmentation_Dialog(QtWidgets.QDialog):
         super().__init__(parent)
 
     def setupUi(self):
-        self.resize(460, 470)
+        self.resize(460, 525)
         self.algoLabel = QtWidgets.QLabel(self)  #label
         self.algoLabel.setGeometry(10, 10, 200, 20)
         self.watershedBox = QtWidgets.QCheckBox(self)      #checkbox
@@ -700,36 +701,40 @@ class Segmentation_Dialog(QtWidgets.QDialog):
         self.sigmaLabel.setGeometry(140, 70, 200, 20)
         self.sigmaSpinBox = QtWidgets.QDoubleSpinBox(self)
         self.sigmaSpinBox.setGeometry(160, 95, 55, 25)
+        self.binaryMeanLabel = QtWidgets.QLabel(self) #label
+        self.binaryMeanLabel.setGeometry(10, 140, 250, 20)
+        self.binaryMeanSpinBox = QtWidgets.QDoubleSpinBox(self) #spin box
+        self.binaryMeanSpinBox.setGeometry(30, 165, 55, 25)
         self.noiseLabel = QtWidgets.QLabel(self)   #label
-        self.noiseLabel.setGeometry(10, 140, 90, 20)
+        self.noiseLabel.setGeometry(10, 210, 90, 20)
         self.noiseSpinBox = QtWidgets.QSpinBox(self) #spin box
-        self.noiseSpinBox.setGeometry(30, 165, 50, 25)
+        self.noiseSpinBox.setGeometry(30, 235, 50, 25)
         self.smallROILabel = QtWidgets.QLabel(self) #label
-        self.smallROILabel.setGeometry(120, 140, 110, 20)
+        self.smallROILabel.setGeometry(120, 210, 110, 20)
         self.smallROISpinBox = QtWidgets.QSpinBox(self) #spin box
-        self.smallROISpinBox.setGeometry(140, 165, 50, 25)
+        self.smallROISpinBox.setGeometry(140, 235, 50, 25)
         self.ROIsizeLabel = QtWidgets.QLabel(self)
-        self.ROIsizeLabel.setGeometry(260, 140, 180, 20)
+        self.ROIsizeLabel.setGeometry(260, 210, 180, 20)
         self.ROIsizeSpinBox = QtWidgets.QSpinBox(self)
-        self.ROIsizeSpinBox.setGeometry(280, 165, 50, 25)
+        self.ROIsizeSpinBox.setGeometry(280, 235, 50, 25)
         self.logBinaryBox = QtWidgets.QCheckBox(self)      #check Box
-        self.logBinaryBox.setGeometry(10, 210, 140, 20)
+        self.logBinaryBox.setGeometry(10, 280, 140, 20)
         self.thresholdROIBox = QtWidgets.QCheckBox(self)#check box
-        self.thresholdROIBox.setGeometry(10, 255, 170, 20)
+        self.thresholdROIBox.setGeometry(10, 325, 170, 20)
         self.meanScalarLabel = QtWidgets.QLabel(self)  #label
-        self.meanScalarLabel.setGeometry(30, 285, 200, 20)
+        self.meanScalarLabel.setGeometry(30, 355, 200, 20)
         self.meanScalarSpinBox = QtWidgets.QDoubleSpinBox(self)# double spin box
-        self.meanScalarSpinBox.setGeometry(50, 310, 55, 25)
+        self.meanScalarSpinBox.setGeometry(50, 380, 55, 25)
         self.channelLabel = QtWidgets.QLabel(self)
-        self.channelLabel.setGeometry(10, 350, 100, 20)
+        self.channelLabel.setGeometry(10, 420, 100, 20)
         self.donorCheckBox = QtWidgets.QCheckBox(self)
-        self.donorCheckBox.setGeometry(20, 375, 120, 20)
+        self.donorCheckBox.setGeometry(20, 445, 120, 20)
         self.secondaryCheckBox = QtWidgets.QCheckBox(self)
-        self.secondaryCheckBox.setGeometry(160, 375, 245, 20)
+        self.secondaryCheckBox.setGeometry(160, 445, 245, 20)
         self.OKButton = QtWidgets.QPushButton(self)
-        self.OKButton.setGeometry(200, 430, 112, 34)
+        self.OKButton.setGeometry(200, 480, 112, 34)
         self.CancelButton = QtWidgets.QPushButton(self)
-        self.CancelButton.setGeometry(322, 430, 112, 34)
+        self.CancelButton.setGeometry(322, 480, 112, 34)
 
         self.retranslateUi()
         self.CancelButton.clicked.connect(self.reject)
@@ -762,12 +767,16 @@ class Segmentation_Dialog(QtWidgets.QDialog):
             self.ROIsizeSpinBox.setEnabled(True)
             self.noiseSpinBox.setEnabled(True)
             self.noiseLabel.setEnabled(True)
+            self.binaryMeanLabel.setEnabled(True)
+            self.binaryMeanSpinBox.setEnabled(True)
         else:
             self.otsuBox.setChecked(True)
             self.ROIsizeLabel.setEnabled(False)
             self.ROIsizeSpinBox.setEnabled(False)
             self.noiseSpinBox.setEnabled(False)
             self.noiseLabel.setEnabled(False)
+            self.binaryMeanLabel.setEnabled(False)
+            self.binaryMeanSpinBox.setEnabled(False)
 
     def otsu_click(self):
         #this function makes sure that only one segmentation algorithm is checked at a time
@@ -777,12 +786,16 @@ class Segmentation_Dialog(QtWidgets.QDialog):
             self.ROIsizeSpinBox.setEnabled(False)
             self.noiseSpinBox.setEnabled(False)
             self.noiseLabel.setEnabled(False)
+            self.binaryMeanLabel.setEnabled(False)
+            self.binaryMeanSpinBox.setEnabled(False)
         else:
             self.watershedBox.setChecked(True)
             self.ROIsizeLabel.setEnabled(True)
             self.ROIsizeSpinBox.setEnabled(True)
             self.noiseSpinBox.setEnabled(True)
             self.noiseLabel.setEnabled(True)
+            self.binaryMeanLabel.setEnabled(True)
+            self.binaryMeanSpinBox.setEnabled(True)
 
     def threshold_click(self):
         if self.thresholdROIBox.isChecked():
@@ -800,6 +813,7 @@ class Segmentation_Dialog(QtWidgets.QDialog):
         self.segParams['kernel_size'] = self.kernelSpinBox.value()
         self.segParams['sigma'] = self.sigmaSpinBox.value()
         self.segParams['small_roi_radius'] = self.smallROISpinBox.value()
+        self.segParams['bin_map_factor'] = self.binaryMeanSpinBox.value()
         self.segParams['noise_level'] = self.noiseSpinBox.value()
         self.segParams['roi_size'] = self.ROIsizeSpinBox.value()
         if self.logBinaryBox.isChecked():
@@ -839,6 +853,11 @@ class Segmentation_Dialog(QtWidgets.QDialog):
         self.sigmaSpinBox.setMinimum(0)
         self.sigmaSpinBox.setMaximum(999999)
         self.sigmaSpinBox.setValue(self.segParams['sigma'])
+        self.binaryMeanLabel.setText('Binary Map Mean Threshold Factor:')
+        self.binaryMeanLabel.setToolTip('Factor of mean image intensity for binary map thresholding.')
+        self.binaryMeanSpinBox.setMinimum(0)
+        self.binaryMeanSpinBox.setMaximum(9999)
+        self.binaryMeanSpinBox.setValue(self.segParams['bin_map_factor'])
         self.noiseLabel.setText( 'Noise Level:')
         self.noiseLabel.setToolTip( 'Pixels with photon count lower than "Noise Level" will be treated as background.')
         self.noiseSpinBox.setMinimum(0)
@@ -883,6 +902,8 @@ class Segmentation_Dialog(QtWidgets.QDialog):
             self.otsuBox.setChecked(True)
             self.ROIsizeLabel.setEnabled(False)
             self.ROIsizeSpinBox.setEnabled(False)
+            self.binaryMeanLabel.setEnabled(False)
+            self.binaryMeanSpinBox.setEnabled(False)
             self.noiseLabel.setEnabled(False)
             self.noiseSpinBox.setEnabled(False)
         if self.segParams['channel'] == 'donor':
@@ -989,11 +1010,12 @@ class Batch_Process_Window(QtWidgets.QMainWindow):
         self.progressTitle.setText('ANALYSIS PROGRESS:')
         self.progressLabel0 = QtWidgets.QLabel(self.centralwidget)
         self.progressLabel0.setGeometry(420, 130, 200, 25)
-        self.progressLabel0.setText('Process not started')
+        self.progressLabel0.setText('Analysis Pending...')
         #signal calls
         self.autoT0Box.clicked.connect(self.auto_bounds)
         self.noAcceptorCheckBox.clicked.connect(self.custom_lifetime)
         self.processButton.clicked.connect(self.check_params)
+
 
     def custom_lifetime(self):
         #this function enables custom no acceptor donor lifetime
@@ -1020,6 +1042,7 @@ class Batch_Process_Window(QtWidgets.QMainWindow):
         json_name = self.jsonLineEdit.text()
         if json_name[-5:] != '.json':
             self.jsonLineEdit.setText('File name must end with ".json"')
+            self.progressLabel0.setText('Process stopped.')
             return None
         else:
             try:
@@ -1030,6 +1053,7 @@ class Batch_Process_Window(QtWidgets.QMainWindow):
                 print('JSON loading error')
                 print(e)
                 self.jsonLineEdit.setText('Failed to load configuration file')
+                self.progressLabel0.setText('Process stopped.')
                 return None
         if self.autoT0Box.isChecked():
             self.config['autoT0'] = True
@@ -1042,26 +1066,27 @@ class Batch_Process_Window(QtWidgets.QMainWindow):
                 self.config['donor_lifetime'] = no_acceptor_lifetime
             except:
                 self.noAcceptorLineEdit.setText('Value Error')
+                self.progressLabel0.setText('Process stopped.')
                 return None
         else:
             self.config['donor_lifetime'] = 3.8e-9
         csv_name = self.csvLineEdit.text()
         if csv_name[-4:] != '.csv':
             self.csvLineEdit.setText('File name must end with ".csv"')
+            self.progressLabel0.setText('Process stopped.')
             return None
         else:
             self.config['csv_name'] = csv_name
-        self.progressLabel0.setText('Analysis started ... ')
         self.process_stack()
     
     def process_stack(self):
         #this function calls the nonstructured data functions when the params are ok.
         if self.config['file_type'] == 'iss-tdflim':
-            df = func.ISS_stack_nonstructured_data_withFRET(self.stack_path, self.ISS_stack, self.config['csv_name'], self.config['algorithm'], self.config['kernel_size'], self.config['sigma'], self.config['noise_level'], self.config['small_roi_radius'], self.config['roi_size'], self.config['log_binary'], self.config['mean_scalar'], self.config['donorT0Lims'], self.config['acceptorT0Lims'], autoT0=self.config['autoT0'], ROI_thresholding=self.config['threshold'], no_acceptor_lifetime=self.config['donor_lifetime'])                                                      
+            df = func.ISS_stack_nonstructured_data_withFRET(self.stack_path, self.ISS_stack, self.config['csv_name'], self.config['algorithm'], self.config['kernel_size'], self.config['sigma'], self.config['noise_level'], self.config['small_roi_radius'], self.config['roi_size'], self.config['log_binary'], self.config['mean_scalar'], self.config['donorT0Lims'], self.config['acceptorT0Lims'], bin_map_factor=self.config['bin_map_factor'], autoT0=self.config['autoT0'], ROI_thresholding=self.config['threshold'], no_acceptor_lifetime=self.config['donor_lifetime'])                                                      
         elif self.config['file_type'] == 'ino-folder':
-            df = func.INO_stack_nonstructured_data_withFRET(self.stack_path, self.config['csv_name'], self.config['spectralRange0'], self.config['spectralRange1'], self.config['spectralRange2'], self.config['spectralRange3'], self.config['algorithm'], self.config['kernel_size'], self.config['sigma'], self.config['noise_level'], self.config['small_roi_radius'], self.config['roi_size'], self.config['log_binary'], self.config['mean_scalar'], self.config['donorT0Lims'], autoT0=self.config['autoT0'], ROI_thresholding=self.config['threshold'], no_acceptor_lifetime=self.config['donor_lifetime'])
+            df = func.INO_stack_nonstructured_data_withFRET(self.stack_path, self.config['csv_name'], self.config['spectralRange0'], self.config['spectralRange1'], self.config['spectralRange2'], self.config['spectralRange3'], self.config['algorithm'], self.config['kernel_size'], self.config['sigma'], self.config['noise_level'], self.config['small_roi_radius'], self.config['roi_size'], self.config['log_binary'], self.config['mean_scalar'], self.config['donorT0Lims'], bin_map_factor=self.config['bin_map_factor'], autoT0=self.config['autoT0'], ROI_thresholding=self.config['threshold'], no_acceptor_lifetime=self.config['donor_lifetime'])
         self.progressLabel0.setText('Finished! CSV file saved.')
-
+ 
     def retranslateUi(self):
         #this function writes correct values into line edits.F
         self.pathLabel.setText(f'Current Image Stack: {self.stack_path}')
@@ -1090,7 +1115,8 @@ class Ui_MainWindow(QtWidgets.QMainWindow):
         self.ISS_cubes = None #current iss cubes [acceptor flim, donor flim]
         self.INO_cubes = None #current INO cubes (donor flim, hyperspectral)
         self.spectralRange0 = [0, 64]
-        self.segParams = ({'channel':'donor', 'algorithm':'watershed', 'kernel_size':50, 'sigma':0.25, 'small_roi_radius':5, 'noise_level':20, 'roi_size':10, 'log_binary':False, 'threshold':True, 'mean_scalar':1})
+
+        self.segParams = ({'channel':'donor', 'algorithm':'watershed', 'kernel_size':50, 'sigma':0.25, 'bin_map_factor':1, 'small_roi_radius':5, 'noise_level':20, 'roi_size':10, 'log_binary':False, 'threshold':True, 'mean_scalar':1})
         self.INO_spectral_array = None
         self.spectralRange1 = None
         self.spectralRange2 = None
