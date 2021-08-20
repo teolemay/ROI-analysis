@@ -29,7 +29,13 @@ File descriptions:
 # Running the package
 To install the requirements: ensure that you already have python and pip installed, then run
 
-    pip install -r requirements.txt
+    > pip install -r requirements.txt
 
-Next, ensure that `ROI_GUI.py` and the `ROI_functions_images` folder are both downloaded in the same directory. 
+Next, ensure that `ROI_GUI.py` and the `ROI_functions_images` folder are both downloaded and extracted directly into the desired python environment. 
 Running `ROI_GUI.py` will open the GUI and allow access to the ROI analysis functionalities.
+
+If using Anaconda, it is best to run the script from the Anaconda command prompt with
+
+    > python ROI_GUI.py
+    
+This ensures that any error messages that may occur are accessible if the GUI crashes.
