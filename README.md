@@ -12,6 +12,8 @@ File descriptions:
     - background images
 - requirements.txt
   - required packages
+- filter_bin_data.ipynb
+  - jupyter notebook for data filtering, binning and curve fitting
   
 # Requirements:
 - python (>3.8)
@@ -39,3 +41,9 @@ If using Anaconda, it is best to run the script from the Anaconda command prompt
     > python ROI_GUI.py
     
 This ensures that any error messages that may occur are accessible if the GUI crashes.
+
+The binning script can be run from the Anaconda command prompt with
+
+    > jupyter notebook filter_bin_data.ipynb
+
+To close the notebook, type `Ctrl+c` in the Anaconda command prompt.
