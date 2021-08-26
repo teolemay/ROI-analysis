@@ -1044,44 +1044,64 @@ def get_nonstructured_data(acceptor_cube, donor_cube, lifetime_bin_lims=(20,110)
     return ROI_labels, ROI_sizes, ROI_lifetimes, ROI_ratios
 
 
-def FRET_binning(ratio, FRET):
+def data_binning(xdata, ydata, auto_bins=True, bin_edges=[]):
     """
     this function will bin the fret efficiency values in order to make a nice binding curve plot
     
-    :param ratio: array of acceptor to donor ratios 
-    :param FRET: array of FRET efficiencies
+    :param ratio: array of data for x axis
+    :param FRET: array of data for y axis
+    :parm auto_bins: bool. if true, bins are set automatically (with more bins earlier in the dataset). if false, bins are defined by bin_edges.
+    :param bin_edges: list of bin edges
 
-    :return: mean FRET efficiencies for each bin, std deviation for FRET efficiency bins, mean ratio for each bin
+    :return: bin sizes, mean y per bin, median y per bin, y std deviation per bin, y std error per bin, bin centers, mean x per bin
     """
-    ratio_array = np.array(ratio)
-    FRET_array = np.array(FRET)
-    fret_bins = []
-    ratio_bins = []
-    i = 0
-    lim = np.max(ratio_array)
-    while i <= lim:
-        if i < lim/4:
-            bin_size=lim*0.03
-        elif i < lim/2:
-            bin_size= lim*0.1
-        else:
-            bin_size=lim*0.2
-        frets = FRET_array[np.logical_and(ratio_array >= i, ratio_array < i+bin_size)]
-        ratios = ratio_array[np.logical_and(ratio_array >= i, ratio_array < i+bin_size)]
-        fret_bins.append(frets)
-        ratio_bins.append(ratios)
-        i += bin_size
-    means = np.array([])
-    std_devs = np.array([])
-    mean_ratios = np.array([])
-    for i, bin in enumerate(fret_bins):
-        if len(bin) < 3:
-            pass
-        else:
-            means = np.append(means, np.mean(bin))
-            std_devs = np.append(std_devs, np.std(bin))
-            mean_ratios = np.append(mean_ratios, np.mean(ratio_bins[i]))
-    return means, std_devs, mean_ratios
+    x_array = np.array(xdata)
+    y_array = np.array(ydata)
+    y_bins = []
+    x_bins = []
+    x_bin_centers = []
+    bin_sizes = []
+    i = 0         #i should be bin center.
+    lim = np.max(x_array)
+    if auto_bins:
+        while i <= lim:
+            if i < lim/4:
+                bin_size=lim*0.015
+            elif i < lim/2:
+                bin_size= lim*0.05
+            else:
+                bin_size=lim*0.1
+            y_vals = y_array[np.logical_and(x_array >= i-bin_size, x_array < i+bin_size)]
+            x_vals = x_array[np.logical_and(x_array >= i-bin_size, x_array < i+bin_size)]
+            y_bins.append(y_vals)
+            x_bins.append(x_vals)
+            x_bin_centers.append(i)
+            bin_sizes.append(len(y_vals))
+            i += 2*bin_size
+    elif bin_edges != []:
+        for i in range(len(bin_edges) -1):
+            center = (bin_edges[i] + bin_edges[i+1])/2
+            y_vals = y_array[np.logical_and(x_array >= bin_edges[i], x_array < bin_edges[i+1])]
+            x_vals = x_array[np.logical_and(x_array >= bin_edges[i], x_array < bin_edges[i+1])]
+            y_bins.append(y_vals)
+            x_bins.append(x_vals)
+            bin_sizes.append(len(y_vals))
+            x_bin_centers.append(center)
+    else:
+        print('No bins selected')
+        return None
+    y_means = np.array([])
+    y_medians = np.array([])
+    y_std_devs = np.array([])
+    y_std_errs = np.array([])
+    x_means = np.array([])
+    for i, bin in enumerate(y_bins):
+        y_means = np.append(y_means, np.mean(bin))
+        y_medians = np.append(y_medians, np.median(bin))
+        y_std_devs = np.append(y_std_devs, np.std(bin))
+        y_std_errs = np.append(y_std_errs, ( np.std(bin) / np.sqrt( len(bin) ) ) )
+        x_means = np.append(x_means, np.mean(x_bins[i]))
+    return bin_sizes, y_means, y_medians, y_std_devs, y_std_errs, x_bin_centers, x_means
 
 
 def random_cmap(map_len=256, black_background=False):
@@ -1145,6 +1165,68 @@ def closest_index(value, array):
     """
     index = (np.abs(array - value)).argmin()
     return index
+
+
+def filter_df(df, **filterDict):
+    """
+    this function will filter a dataframe according to the parameters given by the filterDict **kwarg
+
+    :param df: dataframe to filter
+    :param **filterDict: dictionary, filtering parameters to use
+
+    :return: filtered sub-dataframe
+    """
+    subdf = df.copy()
+    cols = list(subdf.columns)
+    for key in filterDict:
+        value = filterDict[key]
+        if value != None:
+            if key in cols:
+                op = value[:2]
+                if key == 'Well_ID':
+                    #check well IDs
+                    if op == 'ee':
+                        limit = value[2:]
+                        subdf = subdf[subdf[key] == limit]
+                elif key == 'Acceptor/Donor_ratio':
+                    limit = float(value[2:])  #maybe want to add something for conversion errors, but error message may be enough
+                    if 'Well_ID' in cols:
+                        if op == 'gt':
+                            subdf = subdf[subdf['Spectral_Range0_intensity']/subdf['Donor_intensity'] > limit]
+                        elif op == 'lt':
+                            subdf = subdf[subdf['Spectral_Range0_intensity']/subdf['Donor_intensity'] < limit]
+                        elif op == 'ge':
+                            subdf = subdf[subdf['Spectral_Range0_intensity']/subdf['Donor_intensity'] >= limit]
+                        elif op == 'le':
+                            subdf = subdf[subdf['Spectral_Range0_intensity']/subdf['Donor_intensity'] <= limit]
+                        elif op == 'ee':
+                            subdf = subdf[subdf['Spectral_Range0_intensity']/subdf['Donor_intensity'] == limit]
+                    else:
+                        if op == 'gt':
+                            subdf = subdf[subdf['Acceptor_intensity']/subdf['Donor_intensity'] > limit]
+                        elif op == 'lt':
+                            subdf = subdf[subdf['Acceptor_intensity']/subdf['Donor_intensity'] < limit]
+                        elif op == 'ge':
+                            subdf = subdf[subdf['Acceptor_intensity']/subdf['Donor_intensity'] >= limit]
+                        elif op == 'le':
+                            subdf = subdf[subdf['Acceptor_intensity']/subdf['Donor_intensity'] <= limit]
+                        elif op == 'ee':
+                            subdf = subdf[subdf['Acceptor_intensity']/subdf['Donor_intensity'] == limit]
+                else:
+                    limit = float(value[2:])  #maybe want to add something for conversion errors, but error message may be enough
+                    if op == 'gt':
+                        subdf = subdf[subdf[key] > limit]
+                    elif op == 'lt':
+                        subdf = subdf[subdf[key] < limit]
+                    elif op == 'ge':
+                        subdf = subdf[subdf[key] >= limit]
+                    elif op == 'le':
+                        subdf = subdf[subdf[key] <= limit]
+                    elif op == 'ee':
+                        subdf = subdf[subdf[key] == limit]
+    return subdf
+
+
 
 
 
