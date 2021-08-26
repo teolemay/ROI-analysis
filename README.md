@@ -47,3 +47,13 @@ The binning script can be run from the Anaconda command prompt with
     > jupyter notebook filter_bin_data.ipynb
 
 To close the notebook, type `Ctrl+c` in the Anaconda command prompt.
+
+# Debugging
+
+The jupyter notebook may not be able to connect to the correct kernel. In this case, if you receive an error message containing 
+
+    ImportError: DLL load failed while importing win32api: The specified module could not be found.
+    
+you will need to use the Anaconda command prompt and run
+
+    > conda install pywin32
