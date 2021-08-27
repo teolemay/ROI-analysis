@@ -807,7 +807,7 @@ def INO_stack_nonstructured_data_withFRET(INOfolder_path, csv_name, spectralRang
         'ROI_size':ROI_sizes,
         'T0_intensity':T0_Intensity,
         'Donor_intensity':donor_ROI_intensity,
-        'Spectral_Range0_intensity':spectralRange0_ROI_intensity,
+        'Acceptor_intensity':spectralRange0_ROI_intensity,
         'Spectral_Range1_intensity':spectralRange1_ROI_intensity,
         'Spectral_Range2_intensity':spectralRange2_ROI_intensity,
         'Spectral_Range3_intensity':spectralRange3_ROI_intensity,
