@@ -27,6 +27,7 @@ File descriptions:
 - scikit-image
 - opencv-python
 - pandas
+- jupyterlab
 
 # Running the package
 To install the requirements: ensure that you already have python and pip installed, then run
