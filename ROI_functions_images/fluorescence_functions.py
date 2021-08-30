@@ -1179,51 +1179,52 @@ def filter_df(df, **filterDict):
     subdf = df.copy()
     cols = list(subdf.columns)
     for key in filterDict:
-        value = filterDict[key]
-        if value != None:
-            if key in cols:
-                op = value[:2]
-                if key == 'Well_ID':
-                    #check well IDs
-                    if op == 'ee':
-                        limit = value[2:]
-                        subdf = subdf[subdf[key] == limit]
-                elif key == 'Acceptor/Donor_ratio':
-                    limit = float(value[2:])  #maybe want to add something for conversion errors, but error message may be enough
-                    if 'Well_ID' in cols:
-                        if op == 'gt':
-                            subdf = subdf[subdf['Spectral_Range0_intensity']/subdf['Donor_intensity'] > limit]
-                        elif op == 'lt':
-                            subdf = subdf[subdf['Spectral_Range0_intensity']/subdf['Donor_intensity'] < limit]
-                        elif op == 'ge':
-                            subdf = subdf[subdf['Spectral_Range0_intensity']/subdf['Donor_intensity'] >= limit]
-                        elif op == 'le':
-                            subdf = subdf[subdf['Spectral_Range0_intensity']/subdf['Donor_intensity'] <= limit]
-                        elif op == 'ee':
-                            subdf = subdf[subdf['Spectral_Range0_intensity']/subdf['Donor_intensity'] == limit]
+        if key in ['Well_ID', 'ROI_size', 'Donor_T0_intensity', 'Acceptor_T0_intensity', 'T0_intensity', 'Donor_intensity', 'Acceptor_intensity', 'Spectral_Range1_intensity', 'Spectral_Range2_intensity', 'Spectral_Range3_intensity', 'Acceptor/Donor_ratio', 'Donor_lifetime', 'Phasor_G', 'Phasor_S', 'FRET_efficiency']:
+            value = filterDict[key]
+            if value != None:
+                if key in cols:
+                    op = value[:2]
+                    if key == 'Well_ID':
+                        #check well IDs
+                        if op == 'ee':
+                            limit = value[2:]
+                            subdf = subdf[subdf[key] == limit]
+                    elif key == 'Acceptor/Donor_ratio':
+                        limit = float(value[2:])  #maybe want to add something for conversion errors, but error message may be enough
+                        if 'Well_ID' in cols:
+                            if op == 'gt':
+                                subdf = subdf[subdf['Spectral_Range0_intensity']/subdf['Donor_intensity'] > limit]
+                            elif op == 'lt':
+                                subdf = subdf[subdf['Spectral_Range0_intensity']/subdf['Donor_intensity'] < limit]
+                            elif op == 'ge':
+                                subdf = subdf[subdf['Spectral_Range0_intensity']/subdf['Donor_intensity'] >= limit]
+                            elif op == 'le':
+                                subdf = subdf[subdf['Spectral_Range0_intensity']/subdf['Donor_intensity'] <= limit]
+                            elif op == 'ee':
+                                subdf = subdf[subdf['Spectral_Range0_intensity']/subdf['Donor_intensity'] == limit]
+                        else:
+                            if op == 'gt':
+                                subdf = subdf[subdf['Acceptor_intensity']/subdf['Donor_intensity'] > limit]
+                            elif op == 'lt':
+                                subdf = subdf[subdf['Acceptor_intensity']/subdf['Donor_intensity'] < limit]
+                            elif op == 'ge':
+                                subdf = subdf[subdf['Acceptor_intensity']/subdf['Donor_intensity'] >= limit]
+                            elif op == 'le':
+                                subdf = subdf[subdf['Acceptor_intensity']/subdf['Donor_intensity'] <= limit]
+                            elif op == 'ee':
+                                subdf = subdf[subdf['Acceptor_intensity']/subdf['Donor_intensity'] == limit]
                     else:
+                        limit = float(value[2:])  #maybe want to add something for conversion errors, but error message may be enough
                         if op == 'gt':
-                            subdf = subdf[subdf['Acceptor_intensity']/subdf['Donor_intensity'] > limit]
+                            subdf = subdf[subdf[key] > limit]
                         elif op == 'lt':
-                            subdf = subdf[subdf['Acceptor_intensity']/subdf['Donor_intensity'] < limit]
+                            subdf = subdf[subdf[key] < limit]
                         elif op == 'ge':
-                            subdf = subdf[subdf['Acceptor_intensity']/subdf['Donor_intensity'] >= limit]
+                            subdf = subdf[subdf[key] >= limit]
                         elif op == 'le':
-                            subdf = subdf[subdf['Acceptor_intensity']/subdf['Donor_intensity'] <= limit]
+                            subdf = subdf[subdf[key] <= limit]
                         elif op == 'ee':
-                            subdf = subdf[subdf['Acceptor_intensity']/subdf['Donor_intensity'] == limit]
-                else:
-                    limit = float(value[2:])  #maybe want to add something for conversion errors, but error message may be enough
-                    if op == 'gt':
-                        subdf = subdf[subdf[key] > limit]
-                    elif op == 'lt':
-                        subdf = subdf[subdf[key] < limit]
-                    elif op == 'ge':
-                        subdf = subdf[subdf[key] >= limit]
-                    elif op == 'le':
-                        subdf = subdf[subdf[key] <= limit]
-                    elif op == 'ee':
-                        subdf = subdf[subdf[key] == limit]
+                            subdf = subdf[subdf[key] == limit]
     return subdf
 
 
