@@ -57,11 +57,12 @@ To close the notebook, type `Ctrl+c` in the Anaconda prompt.
 
 Dragging and dropping files into the Anaconda prompt will resolve the issue:
 
-    python **drag and drop ROI_GUI.py
+    python **drag and drop ROI_GUI.py**
 
 or 
 
-    jupyter notebook **drag and drop filter_bin_data.ipynb
+    jupyter notebook **drag and drop filter_bin_data.ipynb**
+
 
 The jupyter notebook may not be able to connect to the correct kernel. If you receive an error message containing 
 
